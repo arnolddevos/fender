@@ -1,0 +1,13 @@
+#Wrap your imperative POJOs in Functions
+
+Java APIs are usually full of factory objects, factory-factory objects and lots of setters. You use these to build a tree of POJOs which, finally, does something for you.
+
+If you are starting to get the hang of functional programming in scala all this imperative POJO building just does not fit in. It is tedious and it comes up pretty often.
+
+This short talk is about a simple way to turn it all into functions acting on values: a functional DSL.
+
+We will wrap the Jetty API as an example but the approach should work for many others.
+
+I think this talk will work for new scala programmers. The most advanced concept touched on will be be the typeclass and it will not be central.
+
+However, in a plot twist at the very end it will be revealed that our POJO builder is, in fact, a comonad. Hopefully the more learned among the crowd will then discuss comonads vigorously while I have a beer.
