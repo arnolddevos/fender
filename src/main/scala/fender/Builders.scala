@@ -44,8 +44,7 @@ trait Builders {
 
   def pass[A] = config[A](_ => ())
 
-  def coreturn[A]: Build[A] => A =
-    bla.run()
+  def coreturn[A]( bla: Build[A]): A = bla.run()
 
   def cobind[A, B](f: Build[A] => B): Build[A] => Build[B] =
     bla => build(f(bla))
