@@ -28,28 +28,6 @@ object Example extends App {
     react { 
       case GET(Path("test")) => complete(Plain("Hello Another World\n"))
 
-      case GET(Path("svg"))  => 
-        runFuture(
-          Future( 
-            SVG(<svg xmlns={SVG.NS} version="1.1"><circle r="100"/></svg>)
-          )
-        )
-      
-      case GET(Path("diagram")) => 
-        complete(
-          XHTML(
-            <html xmlns={XHTML.NS}>
-              <head><title>Diagram</title></head>
-              <body>
-                <h2>Pie Chart</h2>
-                <img src="svg"/>
-                <form action="http://localhost:9897/test1/" method="post">
-                  <input type="submit"/>
-                </form>
-              </body>
-            </html>
-          )
-        )
     }
     ~ started
   )

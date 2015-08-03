@@ -6,7 +6,6 @@ package object fender extends
   Requests with 
   ContentTypes with 
   Responses with 
-  XMLResponses with 
   Resources with
   Logging with 
   Syntax
