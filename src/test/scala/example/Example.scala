@@ -12,12 +12,12 @@ object Example extends App {
     routes(
       
       path("/test1") ~ respond { 
-        case GET()  => Plain ~ "Hello World\n" 
-        case POST() => Plain ~ "Noted\n"
+        case GET(_)  => Plain("Hello World\n")
+        case POST(_) => Plain("Noted\n")
       },
       
       path("/test2") ~ react { 
-        case GET() => complete( Plain ~ "Hello World Too\n") 
+        case GET(_) => complete(Plain("Hello World Too\n"))
       }
     )
     ~ started
@@ -26,25 +26,30 @@ object Example extends App {
   val s2 = server (
     connector(port(9899)) ~
     react { 
-      case GET() & PathParts("test") => complete(Plain ~ "Hello Another World\n")
+      case GET(Path("test")) => complete(Plain("Hello Another World\n"))
 
-      case GET() & PathParts("svg")  => runFuture(Future( SVG ~  
-          <svg xmlns={SVG.NS} version="1.1"><circle r="100"/></svg> 
+      case GET(Path("svg"))  => 
+        runFuture(
+          Future( 
+            SVG(<svg xmlns={SVG.NS} version="1.1"><circle r="100"/></svg>)
+          )
         )
-      )
       
-      case GET() & PathParts("diagram") => complete(XHTML ~
-        <html xmlns={XHTML.NS}>
-          <head><title>Diagram</title></head>
-          <body>
-            <h2>Pie Chart</h2>
-            <img src="svg"/>
-            <form action="http://localhost:9897/test1/" method="post">
-              <input type="submit"/>
-            </form>
-          </body>
-        </html>
-      )
+      case GET(Path("diagram")) => 
+        complete(
+          XHTML(
+            <html xmlns={XHTML.NS}>
+              <head><title>Diagram</title></head>
+              <body>
+                <h2>Pie Chart</h2>
+                <img src="svg"/>
+                <form action="http://localhost:9897/test1/" method="post">
+                  <input type="submit"/>
+                </form>
+              </body>
+            </html>
+          )
+        )
     }
     ~ started
   )

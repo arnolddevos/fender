@@ -10,9 +10,9 @@ import java.net.URL
 
 trait Connectors extends Builders {
 
-  def createConnector = map[Server, ServerConnector](new ServerConnector(_))
+  private def createConnector = map[Server, ServerConnector](new ServerConnector(_))
 
-  val addConnector = inject[Server, ServerConnector](_ addConnector _)
+  private val addConnector = inject[Server, ServerConnector](_ addConnector _)
 
   val connector = compose1(addConnector, createConnector)
 

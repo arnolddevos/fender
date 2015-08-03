@@ -13,7 +13,11 @@ trait Responses extends Builders with ContentTypes {
 
   type Content[T] = T => Config[Response]
 
-  implicit val contentType: Content[ContentType] = assign { _ setContentType _.mime}
+  implicit class Entity( ctype: ContentType) {
+    def apply( body: Config[Response]) = contentType(ctype) andThen body
+  }
+
+  val contentType: Content[ContentType] = assign { _ setContentType _.mime}
 
   implicit val text: Content[String] = assign { _.getWriter write _ }
 

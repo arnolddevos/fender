@@ -20,17 +20,7 @@ trait Handlers extends Builders with Syntax with Logging {
       val hs = target.getVirtualHosts
       target.setVirtualHosts( hs :+ value )
   }
-
   val routes: (Config[ContextHandler]*) => Build[Handler] ={
-    cfs => 
-      
-      val cfh = cfs.foldLeft(pass[HandlerCollection])(
-        (cfh, cfc) => cfh andThen addHandler(context extend cfc))
-
-      handlers extend (addHandler(contexts extend cfh) andThen addHandler(defaultHandler))
-  }
-
-  val routesAgain: (Config[ContextHandler]*) => Build[Handler] ={
     cfs => 
       val cfh = cfs.foldLeft(pass[HandlerCollection])((cfh, cfc) => cfh ~ context(cfc))
       handlers(pass[HandlerCollection] ~ contexts(cfh) ~ defaultHandler)

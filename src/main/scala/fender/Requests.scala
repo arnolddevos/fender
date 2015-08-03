@@ -18,7 +18,7 @@ trait Requests {
     request: HttpServletRequest => Option(request.getPathInfo)
   }
 
-  val PathParts = seqExtractor {
+  val Path = seqExtractor {
     request: HttpServletRequest => Option(request.getPathInfo) map { s => (s split '/' drop 1).toSeq}
   }
 
@@ -59,9 +59,10 @@ trait Requests {
     def params: Parameters = inner.getParameterMap.asInstanceOf[java.util.Map[String, Array[String]]]
   }
 
-  trait HttpMethod extends Predicate[HttpServletRequest] with Product {
+  trait HttpMethod extends Extractor[HttpServletRequest, HttpServletRequest] with Product {
     def name = productPrefix
-    def unapply(r: HttpServletRequest): Boolean = r.getMethod == name
+    def unapply(r: HttpServletRequest): Option[HttpServletRequest] = 
+      if(r.getMethod == name) Some(r) else None
   }
 
   case object GET    extends HttpMethod
