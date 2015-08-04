@@ -1,6 +1,6 @@
 package object fender extends 
   Servers with 
-  Connectors with 
+  Clients with
   Handlers with 
   Reactions with
   Requests with 

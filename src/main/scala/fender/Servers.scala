@@ -1,19 +1,31 @@
 package fender
 
-import org.eclipse._
-import jetty.server.Server
-import jetty.jmx.MBeanContainer
-import java.lang.management.ManagementFactory
+import org.eclipse.jetty
+import jetty.server.{Server, SslConnectionFactory, ConnectionFactory, ServerConnector}
+import jetty.util.ssl.SslContextFactory
+import jetty.http.HttpVersion
+import java.net.URL
 
-trait Servers extends Builders {
+trait Servers extends Containers {
 
   val server = build { new Server }
 
-  val withJMX = config[Server] {
-    target =>
-      val mbContainer=new MBeanContainer(ManagementFactory.getPlatformMBeanServer)
-      target.addBean(mbContainer)
-  }
+  private def createConnector = map[Server, ServerConnector](new ServerConnector(_))
 
-  val started = config[Server] { _.start }
+  private val addConnector = inject[Server, ServerConnector](_ addConnector _)
+
+  val connector = compose1(addConnector, createConnector)
+
+  val port = assign[ServerConnector, Int] { _ setPort _ }
+
+  val host = assign[ServerConnector, String] { _ setHost _ }
+
+  implicit val addConnectionFactory = inject[ServerConnector, ConnectionFactory] { _ addConnectionFactory _ }
+
+  def ssl(keystore: String, pass: String) = build[ConnectionFactory] {
+    val cf = new SslContextFactory
+    cf.setKeyStorePath(keystore)
+    cf.setKeyStorePassword(pass)
+    new SslConnectionFactory(cf, HttpVersion.HTTP_1_1.asString())
+  }
 }
