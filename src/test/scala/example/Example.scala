@@ -9,16 +9,27 @@ object Example extends App {
   val s1 = server (
     connector(host("localhost") ~ port(9897)) ~
     connector(port(9898)) ~
-    routes(
+    handlers(
+      theseHandlers ~
       
-      path("/test1") ~ respond { 
-        case GET(_)  => Plain("Hello World\n")
-        case POST(_) => Plain("Noted\n")
-      },
-      
-      path("/test2") ~ react { 
-        case GET(_) => complete(Plain("Hello World Too\n"))
-      }
+      contexts(
+        theseHandlers ~
+
+        context(
+          path("/test1") ~ respond { 
+            case GET(_)  => Plain("Hello World\n")
+            case POST(_) => Plain("Noted\n")
+          }
+        ) ~
+        
+        context(
+          path("/test2") ~ react { 
+            case GET(_) => complete(Plain("Hello World Too\n"))
+          }
+        )
+      ) ~
+
+      defaultHandler
     )
     ~ started
   )
