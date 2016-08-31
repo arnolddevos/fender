@@ -12,8 +12,6 @@ import scala.io.Codec
 
 trait Requests {
 
-  type Parameters = scala.collection.mutable.Map[String, Array[String]]
-
   val PathInfo = extractor {
     request: HttpServletRequest => Option(request.getPathInfo)
   }
@@ -22,24 +20,16 @@ trait Requests {
     request: HttpServletRequest => Option(request.getPathInfo) map { s => (s split '/' drop 1).toSeq}
   }
 
-  object Params extends Extractor[HttpServletRequest, Parameters]  {
+  object Params {
     def apply( params: (String, Seq[String])*) = {
       val query = (for((n, vs) <- params; v <- vs) yield n + "=" + v) mkString ("?", "&", "")
       if( query == "?") "" else query
     }
-    def unapply( request: HttpServletRequest) =
-      Some(request.getParameterMap.asInstanceOf[java.util.Map[String, Array[String]]]: Parameters)
   }
 
-  case class StringParam(name: String) extends SeqExtractor[Parameters, String] {
-    def apply(values: String*) =
-      name -> values
-    def unapplySeq(params: Parameters) =
-      params get name map { ss => ss: Seq[String] }
-//    def unapplySeq(request: HttpServletRequest) =
-//      Option(request.getParameterValues(name)) map (_.toSeq)
-    def in(request: HttpServletRequest) =
-      name -> (Option(request.getParameterValues(name)) map (_.toSeq) getOrElse Seq())
+  case class StringParam(name: String) extends SeqExtractor[HttpServletRequest, String] {
+    def apply(values: String*) = name -> values
+    def unapplySeq(request: HttpServletRequest) = Option(request.getParameterValues(name))
   }
 
   def DoubleParam(name: String) = StringParam(name) * DoubleValue
@@ -54,14 +44,9 @@ trait Requests {
      }
   }
 
-  implicit class RichRequest(inner: HttpServletRequest) {
-    def apply(name: String) = Option(inner.getParameter(name))
-    def params: Parameters = inner.getParameterMap.asInstanceOf[java.util.Map[String, Array[String]]]
-  }
-
   trait HttpMethod extends Extractor[HttpServletRequest, HttpServletRequest] with Product {
     def name = productPrefix
-    def unapply(r: HttpServletRequest): Option[HttpServletRequest] = 
+    def unapply(r: HttpServletRequest): Option[HttpServletRequest] =
       if(r.getMethod == name) Some(r) else None
   }
 
