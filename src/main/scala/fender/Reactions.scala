@@ -10,11 +10,13 @@ trait Reactions extends Builders {
 
   type Reaction[T] = PartialFunction[Request, Config[T]]
 
-  def respond(reaction: Reaction[Response]) = build[Handler] {
-    new AbstractHandler {
+  abstract class FenderHandler extends AbstractHandler
+
+  def respond(reaction: Reaction[Response]) = build[FenderHandler] {
+    new FenderHandler {
       def handle( _1: String, base: Request, _3: HttpServletRequest, _4: HttpServletResponse) = {
-        val run = reaction.runWith { 
-          cfr => 
+        val run = reaction.runWith {
+          cfr =>
             base.setHandled(true)
             cfr.affect(base.getResponse)
             logRequest(base)
@@ -24,11 +26,11 @@ trait Reactions extends Builders {
     }
   }
 
-  def react[T](reaction: Reaction[Continuation]) = build[Handler] {
-    new AbstractHandler {
+  def react[T](reaction: Reaction[Continuation]) = build[FenderHandler] {
+    new FenderHandler {
       def handle( _1: String, base: Request, _3: HttpServletRequest, _4: HttpServletResponse) = {
-        val run = reaction.runWith { 
-          cfc => 
+        val run = reaction.runWith {
+          cfc =>
             base.setHandled(true)
             val c = ContinuationSupport.getContinuation(base)
             c addContinuationListener(listener(base))
@@ -56,5 +58,5 @@ trait Reactions extends Builders {
     def onComplete(c: Continuation) {
       logRequest(request)
     }
-  }  
+  }
 }

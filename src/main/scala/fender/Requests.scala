@@ -6,8 +6,7 @@ import anodyne.Matching._
 import anodyne.Catching._
 import anodyne.BoundedStream.readBounded
 
-import javax.servlet.http.{HttpServletRequest}
-import scala.collection.JavaConversions._
+import javax.servlet.http.HttpServletRequest
 import scala.io.Codec
 
 trait Requests {

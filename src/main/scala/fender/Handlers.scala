@@ -10,10 +10,11 @@ trait Handlers extends Builders with Syntax with Logging {
   val contexts       = build( new ContextHandlerCollection )
   val defaultHandler = build( new DefaultHandler )
   val context        = build( new ContextHandler ) extend config(_.setVirtualHosts(Array[String]()))
-  val theseHandlers  = pass[HandlerCollection]
 
-  implicit val addHandler = inject[HandlerCollection, Handler] { _ addHandler _ }
-  implicit val setHandler = inject[HandlerWrapper, Handler] { _ setHandler _ }
+  implicit val addFenderHandler = inject[HandlerCollection, FenderHandler] { _ addHandler _ }
+  implicit val addContextHandler = inject[ContextHandlerCollection, ContextHandler] { _ addHandler _ }
+  implicit val addDefaulttHandler = inject[HandlerCollection, DefaultHandler] { _ addHandler _ }
+  implicit val setHandler = inject[HandlerWrapper, HandlerCollection] { _ setHandler _ }
 
   val path = assign[ContextHandler, String] { _ setContextPath _ }
   val vhost = assign[ContextHandler, String] {
