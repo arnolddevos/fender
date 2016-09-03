@@ -2,11 +2,11 @@ package fender
 
 import org.eclipse._
 import jetty.server.Handler
-import jetty.server.handler.{AbstractHandler, ContextHandler, HandlerCollection, DefaultHandler, ContextHandlerCollection, HandlerWrapper}
+import jetty.server.handler.{AbstractHandler, ContextHandler, HandlerCollection, HandlerList, DefaultHandler, ContextHandlerCollection, HandlerWrapper}
 
 trait Handlers extends Builders with Syntax with Logging {
 
-  val handlers       = build( new HandlerCollection )
+  val handlers       = build( new HandlerList )
   val contexts       = build( new ContextHandlerCollection )
   val defaultHandler = build( new DefaultHandler )
   val context        = build( new ContextHandler ) extend config(_.setVirtualHosts(Array[String]()))
