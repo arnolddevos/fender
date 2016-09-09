@@ -36,7 +36,6 @@ trait Reactions extends Builders {
             c addContinuationListener(listener(base))
             c.setTimeout(defaultTimeout)
             c.suspend(base.getResponse)
-            logRequest(base)
             cfc.affect(c)
         }
         run(base)
