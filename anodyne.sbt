@@ -1,1 +1,1 @@
-libraryDependencies += "com.bgsig" %% "anodyne" % "0.2"
+libraryDependencies += "com.bgsig" %% "anodyne" % "0.2.2.gabaa1b6"
