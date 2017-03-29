@@ -2,7 +2,7 @@ package fender
 
 import org.eclipse._
 import jetty.server.{Handler, Request, Response}
-import jetty.server.handler.AbstractHandler
+import jetty.server.handler.{AbstractHandler, HandlerCollection}
 import jetty.continuation.{Continuation, ContinuationSupport, ContinuationListener}
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import flowlib._
@@ -13,7 +13,10 @@ import scala.util.{Try, Success, Failure}
 import scala.util.control.NonFatal
 import scala.concurrent.{Future, ExecutionContext}
 
-trait Reactions { this: Builders with Responses with Handlers with Logging =>
+trait Reactions { this: Builders with Responses with Handlers with Syntax with Logging =>
+
+  def on(where: String*)(what: Config[HandlerCollection]) =
+    context(path(where.mkString("/","/","")) ~ handlers(what ~ respond { case _ => status(400) }))
 
   type Reaction[T] = PartialFunction[Request, T]
 
