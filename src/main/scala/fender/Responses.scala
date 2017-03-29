@@ -7,32 +7,32 @@ import scala.util.{Try, Success, Failure}
 
 trait Responses { this: Builders with ContentTypes with Logging =>
 
-  type Content[T] = T => Config[Response]
+  type Content = Config[Response]
 
   implicit class Entity( ctype: ContentType) {
-    def apply( body: Config[Response]) = contentType(ctype) andThen body
+    def apply( content: Content) = contentType(ctype) andThen content
   }
 
-  val contentType: Content[ContentType] = assign { _ setContentType _.mime}
+  val contentType: ContentType => Content = assign { _ setContentType _.mime}
 
-  implicit val text: Content[String] = assign { _.getWriter write _ }
+  implicit val text: String => Content = assign { _.getWriter write _ }
 
-  def tryContent[T]( ev: Content[T]): Content[Try[T]] = {
+  def tryContent[T]( ev: T => Content): Try[T] => Content = {
     case Success(t) => ev(t)
     case Failure(e) => error(e)
   }
 
-  val ok: Config[Response] = pass
+  val ok: Content = pass
 
-  val status: Content[Int] = assign { _ sendError _ }
+  val status: Int => Content = assign { _ sendError _ }
 
-  val error: Content[Throwable] = {
+  val error: Throwable => Content = {
     t =>
       logger warn t
       status(500) andThen contentType(Plain) andThen text(t.toString)
   }
 
-  val redirect: Content[String] = assign {
+  val redirect: String => Content = assign {
     (r, url) =>
       r.sendRedirect(r.encodeRedirectURL(url))
   }

@@ -17,7 +17,7 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
 
   type Reaction[T] = PartialFunction[Request, T]
 
-  def respond(reaction: Reaction[Config[Response]]): Build[FenderHandler] = build[FenderHandler] {
+  def respond(reaction: Reaction[Content]): Build[FenderHandler] = build[FenderHandler] {
     new FenderHandler {
       def handle( _1: String, base: Request, _3: HttpServletRequest, _4: HttpServletResponse) = {
         val run = reaction.runWith {
@@ -48,22 +48,22 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
     }
   }
 
-  def reactProcess(reaction: Reaction[Process[Config[Response]]])(implicit site: Site) =
+  def reactProcess(reaction: Reaction[Process[Content]])(implicit site: Site) =
     react(reaction andThen runProcess)
 
-  def reactFuture(reaction: Reaction[Future[Config[Response]]])(implicit exec: ExecutionContext) =
+  def reactFuture(reaction: Reaction[Future[Content]])(implicit exec: ExecutionContext) =
     react(reaction andThen runFuture)
 
-  def reactEducible[G](reaction: Reaction[G])(implicit e: Educible[G, Config[Response]], site: Site) =
+  def reactEducible[G](reaction: Reaction[G])(implicit e: Educible[G, Content], site: Site) =
     react(reaction andThen runEduction[G])
 
-  def runProcess(response: Process[Config[Response]])(implicit site: Site) = config[Continuation] {
+  def runProcess(response: Process[Content])(implicit site: Site) = config[Continuation] {
     c =>
       def p = response.map(complete(_).affect(c))
       site.run("http response" !: (p recoverWith recovery(c)))
   }
 
-  def runFuture(fr: Future[Config[Response]])(implicit ex: ExecutionContext) = config[Continuation] {
+  def runFuture(fr: Future[Content])(implicit ex: ExecutionContext) = config[Continuation] {
     d =>
       fr onComplete {
         case Success(cfr) => complete(cfr).affect(d)
@@ -71,18 +71,18 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
       }
   }
 
-  def runEduction[G](g: G)(implicit e: Educible[G, Config[Response]], site: Site): Config[Continuation] = {
+  def runEduction[G](g: G)(implicit e: Educible[G, Content], site: Site): Config[Continuation] = {
     config[Continuation] { c =>
       def a = reduce(g, responseReducer(c))
       site.run("http response" !: (a recoverWith recovery(c)))
     }
   }
 
-  def responseReducer(c: Continuation): Reducer[Config[Response], Unit] = {
-    new Reducer[Config[Response], Unit] {
+  def responseReducer(c: Continuation): Reducer[Content, Unit] = {
+    new Reducer[Content, Unit] {
       type State = Continuation
       def init = stop(c)
-      def apply(c: Continuation, r: Config[Response]) = process {
+      def apply(c: Continuation, r: Content) = process {
         r.affect(c.getServletResponse.asInstanceOf[Response])
         stop(c)
       }
@@ -91,7 +91,7 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
     }
   }
 
-  val complete: Config[Response] => Config[Continuation] = {
+  val complete: Content => Config[Continuation] = {
     cfr => config {
       d =>
         try {

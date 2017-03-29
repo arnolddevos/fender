@@ -9,7 +9,7 @@ import anodyne.Matching._
 
 trait Resources { this: Builders =>
 
-  case class ResourceMatch(prefix: String) extends Extractor[String, Config[Response]] {
+  case class ResourceMatch(prefix: String) extends Extractor[String, Content] {
     def unapply(path: String) =
       if( isClean(path))
         Option(getClass.getResource(prefix + path)) map (resourceResponse(_, guessType(path)))
@@ -17,7 +17,7 @@ trait Resources { this: Builders =>
         None
   }
 
-  case class FileMatch(prefix: String) extends Extractor[String, Config[Response]] {
+  case class FileMatch(prefix: String) extends Extractor[String, Content] {
     def unapply(path: String) = {
       if( isClean(path)) {
         val f = new File(prefix + path)
@@ -31,7 +31,7 @@ trait Resources { this: Builders =>
     }
   }
 
-  def resourceResponse(source: ProcessBuilder.Source, contentType: String, age: Int=oneWeek): Config[Response] = config {
+  def resourceResponse(source: ProcessBuilder.Source, contentType: String, age: Int=oneWeek): Content = config {
     r =>
       r.setHeader("Cache-Control", "max-age="+age+",public")
       r.setContentType(contentType)
