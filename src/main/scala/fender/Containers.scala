@@ -6,9 +6,9 @@ import util.component.ContainerLifeCycle
 import jmx.MBeanContainer
 import java.lang.management.ManagementFactory
 
-trait Containers extends Builders {
+trait Containers { this: Builders =>
 
-  val started = config[ContainerLifeCycle] { _.start }  
+  val started = config[ContainerLifeCycle] { _.start }
 
   val withJMX = config[ContainerLifeCycle] {
     target =>
@@ -16,5 +16,5 @@ trait Containers extends Builders {
       target.addBean(mbContainer)
   }
 
-  
+
 }

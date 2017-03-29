@@ -6,7 +6,7 @@ import jetty.util.ssl.SslContextFactory
 import jetty.http.HttpVersion
 import java.net.URL
 
-trait Servers extends Containers {
+trait Servers { this: Builders with Containers =>
 
   val server = build { new Server }
 

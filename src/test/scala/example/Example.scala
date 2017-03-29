@@ -1,7 +1,7 @@
 package example
 
 object Example extends App {
-  import fender._
+  import fender.api._
   import anodyne.Matching._
   import scala.concurrent.Future
   import scala.concurrent.ExecutionContext.Implicits.global

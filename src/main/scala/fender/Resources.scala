@@ -7,7 +7,7 @@ import sys.process._
 import java.io.File
 import anodyne.Matching._
 
-trait Resources extends Builders {
+trait Resources { this: Builders =>
 
   case class ResourceMatch(prefix: String) extends Extractor[String, Config[Response]] {
     def unapply(path: String) =
@@ -36,7 +36,7 @@ trait Resources extends Builders {
       r.setHeader("Cache-Control", "max-age="+age+",public")
       r.setContentType(contentType)
       (source #> r.getOutputStream).!
-  } 
+  }
 
   private val Ext = ".*[.]([^.]+)".r
 
@@ -51,6 +51,6 @@ trait Resources extends Builders {
     case Ext("json") => "application/json"
     case _ => "text/plain"
   }
-  
-  def isClean(path: String) = ! path.startsWith("../") && ! path.contains("/../") 
+
+  def isClean(path: String) = ! path.startsWith("../") && ! path.contains("/../")
 }

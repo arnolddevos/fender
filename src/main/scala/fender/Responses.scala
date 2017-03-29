@@ -5,7 +5,7 @@ package fender
 import org.eclipse.jetty.server.Response
 import scala.util.{Try, Success, Failure}
 
-trait Responses extends Builders with ContentTypes {
+trait Responses { this: Builders with ContentTypes with Logging =>
 
   type Content[T] = T => Config[Response]
 

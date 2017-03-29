@@ -1,7 +1,7 @@
 package fender
 
-trait Syntax extends Builders {
-  
+trait Syntax { this: Builders =>
+
   implicit class BuildOp[A](self: Build[A]) {
     def apply[X](x: X)(implicit ev: Magnet[X, A]): Build[A] = self.extend(ev.use(x))
   }
@@ -14,13 +14,13 @@ trait Syntax extends Builders {
     def use(x: X): Config[A]
   }
 
-  implicit def identMagnet[A] = 
+  implicit def identMagnet[A] =
     new Magnet[Config[A], A] { def use(cf: Config[A]) = cf }
 
-  implicit def injectMagnet[A, B](implicit f: Build[B] => Config[A]) = 
+  implicit def injectMagnet[A, B](implicit f: Build[B] => Config[A]) =
     new Magnet[Build[B], A] { def use( b: Build[B]) = f(b) }
 
-  implicit def assignMagnet[A, B](implicit f: B => Config[A]) = 
+  implicit def assignMagnet[A, B](implicit f: B => Config[A]) =
     new Magnet[B, A] { def use( b: B) = f(b) }
 
 }

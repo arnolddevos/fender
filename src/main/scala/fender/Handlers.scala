@@ -4,7 +4,9 @@ import org.eclipse._
 import jetty.server.Handler
 import jetty.server.handler.{AbstractHandler, ContextHandler, HandlerCollection, HandlerList, DefaultHandler, ContextHandlerCollection, HandlerWrapper}
 
-trait Handlers extends Builders with Syntax with Logging {
+trait Handlers { this: Builders with Syntax with Logging =>
+
+  abstract class FenderHandler extends AbstractHandler
 
   val handlers       = build( new HandlerList )
   val contexts       = build( new ContextHandlerCollection )

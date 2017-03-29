@@ -13,11 +13,9 @@ import scala.util.{Try, Success, Failure}
 import scala.util.control.NonFatal
 import scala.concurrent.{Future, ExecutionContext}
 
-trait Reactions extends Builders { this: Responses =>
+trait Reactions { this: Builders with Responses with Handlers with Logging =>
 
   type Reaction[T] = PartialFunction[Request, T]
-
-  abstract class FenderHandler extends AbstractHandler
 
   def respond(reaction: Reaction[Config[Response]]): Build[FenderHandler] = build[FenderHandler] {
     new FenderHandler {
