@@ -7,7 +7,7 @@ import sys.process._
 import java.io.File
 import anodyne.Matching._
 
-trait Resources { this: Builders =>
+trait Resources { this: Builders with Responses =>
 
   case class ResourceMatch(prefix: String) extends Extractor[String, Content] {
     def unapply(path: String) =

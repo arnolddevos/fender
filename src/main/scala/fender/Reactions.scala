@@ -31,7 +31,9 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
     }
   }
 
-  def react(reaction: Reaction[Config[Continuation]]): Build[FenderHandler] = build[FenderHandler] {
+  type DeferredContent = Config[Continuation]
+
+  def react(reaction: Reaction[DeferredContent]): Build[FenderHandler] = build[FenderHandler] {
     new FenderHandler {
       def handle( _1: String, base: Request, _3: HttpServletRequest, _4: HttpServletResponse) = {
         val run = reaction.runWith {
@@ -57,22 +59,26 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
   def reactEducible[G](reaction: Reaction[G])(implicit e: Educible[G, Content], site: Site) =
     react(reaction andThen runEduction[G])
 
-  def runProcess(response: Process[Content])(implicit site: Site) = config[Continuation] {
-    c =>
-      def p = response.map(complete(_).affect(c))
-      site.run("http response" !: (p recoverWith recovery(c)))
+  def runProcess(response: Process[Content])(implicit site: Site): DeferredContent = {
+    config {
+      c =>
+        def p = response.map(complete(_).affect(c))
+        site.run("http response" !: (p recoverWith recovery(c)))
+    }
   }
 
-  def runFuture(fr: Future[Content])(implicit ex: ExecutionContext) = config[Continuation] {
-    d =>
-      fr onComplete {
-        case Success(cfr) => complete(cfr).affect(d)
-        case Failure(e)   => complete(error(e)).affect(d)
-      }
+  def runFuture(fr: Future[Content])(implicit ex: ExecutionContext): DeferredContent = {
+    config {
+      d =>
+        fr onComplete {
+          case Success(cfr) => complete(cfr).affect(d)
+          case Failure(e)   => complete(error(e)).affect(d)
+        }
+    }
   }
 
-  def runEduction[G](g: G)(implicit e: Educible[G, Content], site: Site): Config[Continuation] = {
-    config[Continuation] { c =>
+  def runEduction[G](g: G)(implicit e: Educible[G, Content], site: Site): DeferredContent = {
+    config { c =>
       def a = reduce(g, responseReducer(c))
       site.run("http response" !: (a recoverWith recovery(c)))
     }
@@ -91,7 +97,7 @@ trait Reactions { this: Builders with Responses with Handlers with Logging =>
     }
   }
 
-  val complete: Content => Config[Continuation] = {
+  val complete: Content => DeferredContent = {
     cfr => config {
       d =>
         try {
