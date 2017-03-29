@@ -2,12 +2,8 @@
 
 package fender
 
-import scala.util.{Try, Success, Failure}
-import scala.util.control.NonFatal
-import scala.concurrent.{Future, ExecutionContext}
-
-import org.eclipse.jetty.continuation.Continuation
 import org.eclipse.jetty.server.Response
+import scala.util.{Try, Success, Failure}
 
 trait Responses extends Builders with ContentTypes {
 
@@ -37,27 +33,7 @@ trait Responses extends Builders with ContentTypes {
   }
 
   val redirect: Content[String] = assign {
-    (r, url) => 
+    (r, url) =>
       r.sendRedirect(r.encodeRedirectURL(url))
   }
-
-  def runFuture(fr: Future[Config[Response]])(implicit ex: ExecutionContext) = config[Continuation] {
-    d =>
-      fr onComplete {
-        case Success(cfr) => complete(cfr).affect(d)
-        case Failure(e)   => complete(error(e)).affect(d)
-      }
-  }
-
-  val complete: Config[Response] => Config[Continuation] = 
-    cfr => config {
-      d =>
-        try {
-          cfr.affect(d.getServletResponse.asInstanceOf[Response])
-          d.complete
-        }
-        catch {
-          case NonFatal(e) => logger warn "response abandoned during output: " + e.toString
-        }
-    }
 }
