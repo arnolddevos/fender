@@ -119,10 +119,10 @@ trait Reactions { this: Builders with Responses with Handlers with Syntax with L
         val r = c.getServletResponse.asInstanceOf[Response]
         if(! r.isCommitted) status(400).affect(r)
         c.complete
-        stop("recovered")
+        stop(())
       }
       catch {
-        case NonFatal(e) => stop("recovery failed with " + e.toString)
+        case NonFatal(e) => stop(())
       }
     }
   }
