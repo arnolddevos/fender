@@ -22,9 +22,9 @@ trait Responses { this: Builders with ContentTypes with Logging =>
     case Failure(e) => error(e)
   }
 
-  val ok: Content = status(200)
-
   val status: Int => Content = assign { _ setStatus _ }
+
+  val ok: Content = status(200)
 
   val reset: Content = (_.reset)
 
