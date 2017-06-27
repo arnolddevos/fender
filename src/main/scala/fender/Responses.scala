@@ -33,7 +33,7 @@ trait Responses { this: Builders with ContentTypes with Logging =>
       reset
         andThen status(400)
         andThen contentType(Plain)
-        andThen text(e.getMessage)
+        andThen text(e.getMessage + "\n")
   )
 
   val redirect: String => Content = assign {
