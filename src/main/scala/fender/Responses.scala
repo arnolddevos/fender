@@ -26,10 +26,10 @@ trait Responses { this: Builders with ContentTypes with Logging =>
 
   val status: Int => Content = assign { _ sendError _ }
 
-  val error: Throwable => Content = {
-    t =>
-      logger warn t
-      status(500) andThen contentType(Plain) andThen text(t.toString)
+  val error: Throwable => Content = assign {
+    (r, e) =>
+      logger.warn("error in http request", e)
+      r.sendError(400, e.getMessage)
   }
 
   val redirect: String => Content = assign {
