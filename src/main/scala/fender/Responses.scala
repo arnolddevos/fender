@@ -22,15 +22,19 @@ trait Responses { this: Builders with ContentTypes with Logging =>
     case Failure(e) => error(e)
   }
 
-  val ok: Content = pass
+  val ok: Content = status(200)
 
-  val status: Int => Content = assign { _ sendError _ }
+  val status: Int => Content = assign { _ setStatus _ }
 
-  val error: Throwable => Content = assign {
-    (r, e) =>
-      logger.warn("error in http request", e)
-      r.sendError(400, e.getMessage)
-  }
+  val reset: Content = (_.reset)
+
+  val error: Throwable => Content = (
+    e =>
+      reset
+        andThen status(400)
+        andThen contentType(Plain)
+        andThen text(e.getMessage)
+  )
 
   val redirect: String => Content = assign {
     (r, url) =>
