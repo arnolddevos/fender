@@ -1,1 +1,1 @@
-libraryDependencies += "com.bgsig" %% "flowlib" % "0.10.15.ga1b6e9c"
+libraryDependencies += "com.bgsig" %% "flowlib" % "0.10.16.gcd2bdb7"
