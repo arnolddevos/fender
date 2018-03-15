@@ -4,5 +4,7 @@ organization := "com.bgsig"
 
 sourcesInBase := false
 
-enablePlugins(DottedGitVersioning)
+enablePlugins(GitVersioning)
 
+
+git.useGitDescribe := true
